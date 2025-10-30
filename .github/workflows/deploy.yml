@@ -1,0 +1,34 @@
+name: Build application and deploy
+
+on:
+  push:
+    branches:
+      - master # production branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to docker hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image
+        run: docker build -t nathmankind/capstone-react-app .
+
+      - name: Publish to Docker hub
+        run: docker push nathmankind/capstone-react-app:latest
+
+  deploy:
+    needs: build
+    runs-on: aws-ec2
+    steps:
+      - name: Pull image from docker hub
+        run: docker pull nathmankind/capstone-react-app:latest
+      - name: Delete old container
+        run: docker rm -f react-container
+      - name: Run docker container
+        run: docker run -d -p 3000:80 --name react-container nathmankind/capstone-react-app
