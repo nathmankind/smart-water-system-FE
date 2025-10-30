@@ -24,7 +24,7 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: [self-hosted, aws-ec2]
+    runs-on: [self-hosted, ec2]
     steps:
       - name: Login to docker hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
