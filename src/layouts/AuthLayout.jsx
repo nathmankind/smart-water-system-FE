@@ -1,4 +1,6 @@
-export default function AuthLayout({ children }) {
+import { Outlet } from "react-router-dom";
+
+export default function AuthLayout() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
       <div className="absolute inset-0 overflow-hidden">
@@ -16,7 +18,7 @@ export default function AuthLayout({ children }) {
           <img src="/assets/logo-blue.png" className="w-1/2 m-auto" alt="" />
         </div>
 
-        {children}
+        <Outlet />
 
         {/* Footer */}
         <div className="mt-8 text-center">
