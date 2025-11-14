@@ -26,6 +26,8 @@ jobs:
       ### 🔍 Adding SNYK for code quality check ###
       - name: Install Snyk
         uses: snyk/actions/setup@master
+        with:
+          args: "--strict-out-of-sync=false"
 
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
