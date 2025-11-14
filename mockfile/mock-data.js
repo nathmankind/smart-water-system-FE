@@ -12,6 +12,10 @@ export const getMockCurrentUser = () => currentMockUser;
 export const setMockCurrentUser = (user) => {
   currentMockUser = user;
 };
+// Can be removed
+export const setMockCurrentUser2 = (user) => {
+  currentMockUser = user;
+};
 
 export const mockUsers = [
   {
