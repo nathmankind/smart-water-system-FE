@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      ### 🔍 Add SNYK STEPS HERE ###
+      ### 🔍 Adding SNYK for code quality check ###
       - name: Install Snyk
         uses: snyk/actions/setup@master
 
