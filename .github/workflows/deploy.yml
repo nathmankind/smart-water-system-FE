@@ -10,28 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-          - uses: actions/checkout@v3
-
-          ### 🔍 Add SNYK STEPS HERE ###
-          - name: Install Snyk
-            uses: snyk/actions/setup@master
-
-          - name: Authenticate Snyk
-            run: snyk auth ${{ secrets.SNYK_TOKEN }}
-
-          - name: Snyk Test (Code)
-            run: snyk test --severity-threshold=high
-
-          - name: Snyk Test (Docker Image)
-            run: |
-              docker build -t my-react-app .
-              snyk test --docker my-react-app --file=Dockerfile --severity-threshold=high
-
-
-    steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      ### 🔍 Add SNYK STEPS HERE ###
+      - name: Install Snyk
+        uses: snyk/actions/setup@master
+
+      - name: Authenticate Snyk
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}
+
+      - name: Snyk Test (Code)
+        run: snyk test --severity-threshold=high
+
+      - name: Snyk Test (Docker Image)
+        run: |
+          docker build -t my-react-app .
+          snyk test --docker my-react-app --file=Dockerfile --severity-threshold=high
+
+      ## Continue with docker container push
       - name: Login to docker hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
 
@@ -43,7 +40,7 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: ec2-latest-v1
+    runs-on: ec2-lts-01
     steps:
       - name: -- Pull image from docker hub --
         run: docker pull nathmankind/capstone-react-app:latest
