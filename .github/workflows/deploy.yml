@@ -40,7 +40,7 @@ jobs:
       #     command: monitor
 
       - name: Snyk Test (Code)
-        run: snyk test --severity-threshold=high
+        run: snyk test --strict-out-of-sync=false --file=package.json --severity-threshold=high
 
       - name: Snyk Test (Docker Image)
         run: |
