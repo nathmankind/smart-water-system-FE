@@ -19,6 +19,8 @@ export function CompanyAdminNav() {
   const company = user.company_id ? getCompanyById(user.company_id) : null;
 
   const handleLogout = () => {
+    localStorage.removeItem("mock_current_user");
+    localStorage.removeItem("user_token");
     navigate("/auth/login");
   };
 

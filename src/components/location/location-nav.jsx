@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Droplet, Bell, LogOut } from "lucide-react";
 import {
   getMockCurrentUser,
-  clearMockCurrentUser,
   getLocationById,
 } from "@/lib/mock-data";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -17,7 +16,8 @@ export function LocationNav() {
   const location = user?.location_id ? getLocationById(user.location_id) : null;
 
   const handleLogout = () => {
-    clearMockCurrentUser();
+    localStorage.removeItem("mock_current_user");
+    localStorage.removeItem("user_token");
     navigate("/auth/login");
   };
 

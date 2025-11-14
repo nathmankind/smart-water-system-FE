@@ -2,11 +2,40 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Building2, Mail, Phone, MapPin } from "lucide-react";
-import { mockCompanies, getLocationsByCompany } from "@/lib/mock-data";
 import { OnboardCompanyDialog } from "@/components/admin/onboard-company-dialog";
+import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api";
 
 export default function CompaniesPage() {
   const [showOnboardDialog, setShowOnboardDialog] = useState(false);
+
+  const {
+    data: companies,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["companies"],
+    queryFn: async () => {
+      const response = await apiClient.get("/companies");
+      return response.data;
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <p>Loading companies...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-full items-center justify-center text-red-500">
+        <p>Error loading companies: {error.message}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-6">
@@ -27,8 +56,7 @@ export default function CompaniesPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        {mockCompanies.map((company) => {
-          const locations = getLocationsByCompany(company.id);
+        {companies.map((company) => {
           return (
             <Card key={company.id} className="border-gray-200">
               <CardHeader>
@@ -40,7 +68,7 @@ export default function CompaniesPage() {
                     <div>
                       <CardTitle className="text-xl">{company.name}</CardTitle>
                       <p className="text-sm text-gray-500">
-                        {locations.length} locations
+                        {company.locations.length} locations
                       </p>
                     </div>
                   </div>
@@ -49,16 +77,16 @@ export default function CompaniesPage() {
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Mail className="h-4 w-4" />
-                  <span>{company.contact_email}</span>
+                  <span>{company.contactEmail}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Phone className="h-4 w-4" />
-                  <span>{company.contact_phone}</span>
+                  <span>{company.contactPhone}</span>
                 </div>
                 <div className="flex items-start gap-2 text-sm text-gray-600">
                   <MapPin className="h-4 w-4 mt-0.5" />
                   <span>
-                    {`${company.address.street}, ${company.address.city}, ${company.address.province} ${company.address.postal_code}`}
+                    {`${company.address}, ${company.city}, ${company.province} ${company.postalCode}, ${company.country}`}
                   </span>
                 </div>
               </CardContent>

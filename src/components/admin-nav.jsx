@@ -16,11 +16,10 @@ export function AdminNav() {
   const pathname = location.pathname;
   const navigate = useNavigate();
 
-  const handleSignOut = async () => {
-    // const supabase = createClient();
-    // await supabase.auth.signOut();
-    // navigate("/auth/login");
-    console.log("Logout!");
+  const handleLogout = () => {
+    localStorage.removeItem("mock_current_user");
+    localStorage.removeItem("user_token");
+    navigate("/auth/login");
   };
 
   const navItems = [
@@ -67,11 +66,11 @@ export function AdminNav() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={handleSignOut}
+          onClick={handleLogout}
           className="text-gray-600 hover:text-gray-900"
         >
           <LogOut className="mr-2 h-4 w-4" />
-          Sign Out
+          Logout
         </Button>
       </div>
     </header>

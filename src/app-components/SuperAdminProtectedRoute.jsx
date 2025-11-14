@@ -1,11 +1,29 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { getMockCurrentUser } from "@/lib/mock-data";
 
-const isUserAuthenticated = () => {
-  // Replace this with real auth logic (e.g., check token, session, etc.)
+const useSuperAdminAuth = () => {
   const user = getMockCurrentUser();
-  return !(!user || user.role !== "superadmin");
+
+  if (!user || user.role !== "superadmin") {
+    return { isAuthenticated: false, mustChangePassword: false };
+  }
+
+  return {
+    isAuthenticated: true,
+    mustChangePassword: user.mustChangePassword === true,
+  };
 };
+
 export default function SuperAdminProtectedRoute() {
-  return isUserAuthenticated() ? <Outlet /> : <Navigate to="/auth/login" />;
+  const { isAuthenticated, mustChangePassword } = useSuperAdminAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth/login" replace />;
+  }
+
+  if (mustChangePassword) {
+    return <Navigate to="/auth/change-password" replace />;
+  }
+
+  return <Outlet />;
 }

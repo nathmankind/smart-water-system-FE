@@ -9,7 +9,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { addCompany, addUser } from "@/lib/mock-data";
+import { useMutation } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api";
 
 export function OnboardCompanyDialog({ open, onOpenChange }) {
   const [formData, setFormData] = useState({
@@ -25,45 +26,40 @@ export function OnboardCompanyDialog({ open, onOpenChange }) {
     admin_email: "",
   });
 
+  const {
+    mutate: onboardCompany,
+    isPending,
+    error,
+  } = useMutation({
+    mutationFn: async (companyData) => {
+      const response = await apiClient.post("/companies", companyData);
+      return response.data;
+    },
+    onSuccess: () => {
+      onOpenChange(false);
+      window.location.reload();
+    },
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const newCompany = addCompany({
+    const companyData = {
       name: formData.company_name,
-      contact_email: formData.company_email,
-      contact_phone: formData.company_phone,
-      address: {
-        street: formData.company_street,
-        city: formData.company_city,
-        province: formData.company_province,
-        postal_code: formData.company_postal_code,
+      contactEmail: formData.company_email,
+      contactPhone: formData.company_phone,
+      address: formData.company_street,
+      city: formData.company_city,
+      province: formData.company_province,
+      postalCode: formData.company_postal_code,
+      adminContact: {
+        firstName: formData.admin_first_name,
+        lastName: formData.admin_last_name,
+        email: formData.admin_email,
       },
-    });
+    };
 
-    // Add company admin user
-    addUser({
-      email: formData.admin_email,
-      role: "company_admin",
-      full_name: `${formData.admin_first_name} ${formData.admin_last_name}`,
-      company_id: newCompany.id,
-      location_id: null,
-    });
-
-    setFormData({
-      company_name: "",
-      company_email: "",
-      company_phone: "",
-      company_street: "",
-      company_city: "",
-      company_province: "",
-      company_postal_code: "",
-      admin_first_name: "",
-      admin_last_name: "",
-      admin_email: "",
-    });
-
-    onOpenChange(false);
-    window.location.reload();
+    onboardCompany(companyData);
   };
 
   return (
@@ -248,21 +244,30 @@ export function OnboardCompanyDialog({ open, onOpenChange }) {
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
-            >
-              Onboard Company
-            </Button>
+          <div className="flex flex-col gap-4">
+            {error && (
+              <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">
+                {error.message}
+              </div>
+            )}
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                className="flex-1"
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                disabled={isPending}
+              >
+                {isPending ? "Onboarding..." : "Onboard Company"}
+              </Button>
+            </div>
           </div>
         </form>
       </DialogContent>

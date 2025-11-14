@@ -22,6 +22,10 @@ import LocationDashboard from "./pages/location";
 import LocationAlarmsPage from "./pages/location/alarms";
 import SuperAdminProtectedRoute from "./app-components/SuperAdminProtectedRoute";
 
+import ChangePasswordPage from "./pages/auth/change-password";
+
+import ChangePasswordSuccessPage from "./pages/auth/change-password-success";
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -33,6 +37,14 @@ export const router = createBrowserRouter([
       {
         path: "/auth/login",
         element: <LoginForm />,
+      },
+      {
+        path: "/auth/change-password",
+        element: <ChangePasswordPage />,
+      },
+      {
+        path: "/auth/change-password-success",
+        element: <ChangePasswordSuccessPage />,
       },
       {
         path: "/auth/sign-up",

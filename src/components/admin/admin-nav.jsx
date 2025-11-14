@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Droplet, Building2, AlertTriangle, LogOut } from "lucide-react";
-import { clearMockCurrentUser } from "@/lib/mock-data";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export function AdminNav() {
@@ -9,8 +8,9 @@ export function AdminNav() {
   const location = useLocation();
   const pathname = location.pathname;
 
-  const handleSignOut = async () => {
-    clearMockCurrentUser();
+  const handleLogout = () => {
+    localStorage.removeItem("mock_current_user");
+    localStorage.removeItem("user_token");
     navigate("/auth/login");
   };
 
@@ -58,11 +58,11 @@ export function AdminNav() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={handleSignOut}
+          onClick={handleLogout}
           className="text-gray-600 hover:text-gray-900"
         >
           <LogOut className="mr-2 h-4 w-4" />
-          Sign Out
+          Logout
         </Button>
       </div>
     </header>

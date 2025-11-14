@@ -14,36 +14,38 @@ import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function ChangePasswordPage() {
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
 
   const {
-    mutate: handleLogin,
+    mutate: handleChangePassword,
     isPending,
     error,
   } = useMutation({
     mutationFn: async () => {
-      const response = await apiClient.post("/auth/login", { email, password });
+      if (newPassword !== confirmPassword) {
+        throw new Error("Passwords do not match");
+      }
+      const token = localStorage.getItem("user_token");
+      const response = await apiClient.patch(
+        "/users/change-password",
+        {
+          oldPassword,
+          newPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     },
-    onSuccess: (data) => {
-      localStorage.setItem("user_token", data.access_token);
-      console.log("data", data);
-      // Assuming the API returns a user object on successful login
-      const user = data.user;
-      localStorage.setItem("mock_current_user", JSON.stringify(user));
-
-      if (user.mustChangePassword) {
-        navigate("/auth/change-password");
-      } else if (user.role === "superadmin") {
-        navigate("/admin");
-      } else if (user.role === "company_admin") {
-        navigate("/company-admin");
-      } else {
-        navigate("/location");
-      }
+    onSuccess: () => {
+      navigate("/auth/change-password-success");
     },
   });
 
@@ -57,46 +59,56 @@ export default function LoginPage() {
           <h1 className="text-2xl font-bold text-gray-900">
             Water Quality Monitor
           </h1>
-          <p className="text-sm text-gray-600">
-            Professional monitoring system
-          </p>
+          <p className="text-sm text-gray-600">Create a new password</p>
         </div>
 
         <Card className="border-gray-200 shadow-lg">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-semibold">Sign In</CardTitle>
+            <CardTitle className="text-2xl font-semibold">
+              Change Password
+            </CardTitle>
             <CardDescription>
-              Enter your credentials to access the system
+              Please enter a new password for your account.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                handleLogin();
+                handleChangePassword();
               }}
             >
               <div className="flex flex-col gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="old-password">Old Password</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="user@company.com"
+                    id="old-password"
+                    type="password"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
                     className="border-gray-300"
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="new-password">New Password</Label>
                   <Input
-                    id="password"
+                    id="new-password"
                     type="password"
                     required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="border-gray-300"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="confirm-password">Confirm New Password</Label>
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     className="border-gray-300"
                   />
                 </div>
@@ -110,7 +122,7 @@ export default function LoginPage() {
                   className="w-full bg-blue-600 hover:bg-blue-700"
                   disabled={isPending}
                 >
-                  {isPending ? "Signing in..." : "Sign In"}
+                  {isPending ? "Saving..." : "Save Password"}
                 </Button>
               </div>
             </form>
