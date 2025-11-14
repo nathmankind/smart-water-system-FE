@@ -24,9 +24,9 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: ec2
+    runs-on: self-hosted
     steps:
-      - name: Pull image from docker hub
+      - name: Pull image from docker hub --
         run: docker pull nathmankind/capstone-react-app:latest
 
       - name: Delete old container
