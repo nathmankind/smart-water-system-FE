@@ -39,7 +39,7 @@ jobs:
           args: --strict-out-of-sync=false --file=package.json
 
       - name: Snyk Test (Code)
-        run: snyk test --strict-out-of-sync=false --file=package.json --severity-threshold=high
+        run: snyk test --strict-out-of-sync=false --file=package.json --severity-threshold=medium
 
       - name: Snyk Test (Docker Image)
         run: |
