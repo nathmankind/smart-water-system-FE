@@ -1,7 +1,7 @@
 name: Build application and deploy
 
 on:
-  push:
+  pull_request:
     branches:
       - master # production branch
 
@@ -13,15 +13,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      ### 🔍 Add SNYK STEPS HERE ###
+      ### 🔧 Setup Node.js and install dependencies ###
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18" # or your preferred version (16, 20, etc.)
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      ### 🔍 Adding SNYK for code quality check ###
       - name: Install Snyk
         uses: snyk/actions/setup@master
 
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
+      - name: Upload results to Snyk Dashboard
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: monitor
+          args: --strict-out-of-sync=false --file=package.json
+
       - name: Snyk Test (Code)
-        run: snyk test --severity-threshold=high
+        run: snyk test --strict-out-of-sync=false --file=package.json --severity-threshold=medium
 
       - name: Snyk Test (Docker Image)
         run: |
