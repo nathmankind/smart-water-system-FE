@@ -16,14 +16,15 @@ export function OnboardLocationDialog({ open, onOpenChange }) {
 
   const [formData, setFormData] = useState({
     name: "",
-    address: "",
-    latitude: "",
-    longitude: "",
-    device_ip: "",
+    street: "",
+    city: "",
+    province: "",
+    postalCode: "",
+    country: "",
+    device_id: "",
     contact_person_name: "",
     contact_person_email: "",
     contact_person_phone: "",
-    contact_person_password: "",
   });
 
   const handleSubmit = (e) => {
@@ -34,10 +35,14 @@ export function OnboardLocationDialog({ open, onOpenChange }) {
     const newLocation = addLocation({
       company_id: user.company_id,
       name: formData.name,
-      address: formData.address,
-      latitude: Number.parseFloat(formData.latitude) || 0,
-      longitude: Number.parseFloat(formData.longitude) || 0,
-      device_ip: formData.device_ip,
+      address: {
+        street: formData.street,
+        city: formData.city,
+        province: formData.province,
+        postalCode: formData.postalCode,
+        country: formData.country,
+      },
+      device_id: formData.device_id,
       contact_person_name: formData.contact_person_name,
       contact_person_email: formData.contact_person_email,
       contact_person_phone: formData.contact_person_phone,
@@ -54,14 +59,15 @@ export function OnboardLocationDialog({ open, onOpenChange }) {
 
     setFormData({
       name: "",
-      address: "",
-      latitude: "",
-      longitude: "",
-      device_ip: "",
+      street: "",
+      city: "",
+      province: "",
+      postalCode: "",
+      country: "",
+      device_id: "",
       contact_person_name: "",
       contact_person_email: "",
       contact_person_phone: "",
-      contact_person_password: "",
     });
 
     onOpenChange(false);
@@ -92,58 +98,80 @@ export function OnboardLocationDialog({ open, onOpenChange }) {
                 required
               />
             </div>
-
             <div className="space-y-2">
-              <Label htmlFor="address">Address *</Label>
+              <Label htmlFor="street">Street Address *</Label>
               <Input
-                id="address"
-                value={formData.address}
+                id="street"
+                value={formData.street}
                 onChange={(e) =>
-                  setFormData({ ...formData, address: e.target.value })
+                  setFormData({ ...formData, street: e.target.value })
                 }
-                placeholder="123 Water Street, City, State ZIP"
+                placeholder="123 Main St"
                 required
               />
             </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="latitude">Latitude</Label>
+                <Label htmlFor="city">City *</Label>
                 <Input
-                  id="latitude"
-                  type="number"
-                  step="any"
-                  value={formData.latitude}
+                  id="city"
+                  value={formData.city}
                   onChange={(e) =>
-                    setFormData({ ...formData, latitude: e.target.value })
+                    setFormData({ ...formData, city: e.target.value })
                   }
-                  placeholder="39.7817"
+                  placeholder="Toronto"
+                  required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="longitude">Longitude</Label>
+                <Label htmlFor="province">Province *</Label>
                 <Input
-                  id="longitude"
-                  type="number"
-                  step="any"
-                  value={formData.longitude}
+                  id="province"
+                  value={formData.province}
                   onChange={(e) =>
-                    setFormData({ ...formData, longitude: e.target.value })
+                    setFormData({ ...formData, province: e.target.value })
                   }
-                  placeholder="-89.6501"
+                  placeholder="ON"
+                  required
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="postalCode">Postal Code *</Label>
+                <Input
+                  id="postalCode"
+                  value={formData.postalCode}
+                  onChange={(e) =>
+                    setFormData({ ...formData, postalCode: e.target.value })
+                  }
+                  placeholder="M5V 3A8"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="country">Country *</Label>
+                <Input
+                  id="country"
+                  value={formData.country}
+                  onChange={(e) =>
+                    setFormData({ ...formData, country: e.target.value })
+                  }
+                  placeholder="Canada"
+                  required
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="device_ip">Device IP Address *</Label>
+              <Label htmlFor="device_id">Device ID *</Label>
               <Input
-                id="device_ip"
-                value={formData.device_ip}
+                id="device_id"
+                value={formData.device_id}
                 onChange={(e) =>
-                  setFormData({ ...formData, device_ip: e.target.value })
+                  setFormData({ ...formData, device_id: e.target.value })
                 }
-                placeholder="192.168.1.100"
+                placeholder="DEV-001"
                 required
               />
             </div>
@@ -202,28 +230,6 @@ export function OnboardLocationDialog({ open, onOpenChange }) {
                     placeholder="+1-555-0100"
                     required
                   />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="contact_person_password">
-                    Temporary Password *
-                  </Label>
-                  <Input
-                    id="contact_person_password"
-                    type="password"
-                    value={formData.contact_person_password}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        contact_person_password: e.target.value,
-                      })
-                    }
-                    placeholder="••••••••"
-                    required
-                  />
-                  <p className="text-xs text-gray-500">
-                    Contact will use this to login
-                  </p>
                 </div>
               </div>
             </div>
