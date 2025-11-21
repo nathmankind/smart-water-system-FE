@@ -13,12 +13,14 @@ import { Droplet } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  console.log("apiUrl ...", apiUrl);
   const {
     mutate: handleLogin,
     isPending,
@@ -99,6 +101,12 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     className="border-gray-300"
                   />
+                </div>
+                <div className="rounded-md bg-blue-50 p-3 text-sm text-blue-800">
+                  <p className="font-medium mb-1">Demo Credentials:</p>
+                  <p>Superadmin: nathmankind+01@gmail.com --- Admin123!</p>
+                  <p>Company Admin: jane.admin@acme.com --- password</p>
+                  <p>Location Contact: toronto@acme.com</p>
                 </div>
                 {error && (
                   <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">

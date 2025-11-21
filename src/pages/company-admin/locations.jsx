@@ -63,7 +63,7 @@ export default function CompanyAdminLocationsPage() {
         </Button>
       </div>
 
-      {locations.length === 0 ? (
+      {locations?.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
           <MapPin className="mb-4 h-12 w-12 text-gray-400" />
           <h3 className="mb-2 text-xl font-semibold text-gray-900">
@@ -80,7 +80,7 @@ export default function CompanyAdminLocationsPage() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2">
           {locations.map((location) => {
-            const activeAlarms = location.alarms.filter(
+            const activeAlarms = location?.alarms?.filter(
               (a) => a.status === "active"
             );
 
@@ -91,13 +91,13 @@ export default function CompanyAdminLocationsPage() {
                     <div>
                       <CardTitle className="text-xl">{location.name}</CardTitle>
                       <p className="text-sm text-gray-600">
-                        {`${location.address.street}, ${location.address.city}, ${location.address.province} ${location.address.postalCode}, ${location.address.country}`}
+                        {`${location.address}, ${location.city}, ${location.province} ${location.postalCode}, ${location.country}`}
                       </p>
                     </div>
-                    {activeAlarms.length > 0 && (
+                    {activeAlarms?.length > 0 && (
                       <Badge variant="destructive" className="gap-1">
                         <AlertTriangle className="h-3 w-3" />
-                        {activeAlarms.length}
+                        {activeAlarms?.length}
                       </Badge>
                     )}
                   </div>
@@ -109,7 +109,9 @@ export default function CompanyAdminLocationsPage() {
                     </h4>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Network className="h-4 w-4" />
-                      <span>IP: {location.device_ip}</span>
+                      <span>
+                        DEVICE ID: <b>{location.deviceId}</b>
+                      </span>
                     </div>
                   </div>
 
@@ -120,16 +122,17 @@ export default function CompanyAdminLocationsPage() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <span className="font-medium">
-                          {location.contact_person_name}
+                          {/* {location.contact_person_name} */}
+                          {`${location.users[0]?.firstName} ${location.users[0]?.lastName}`}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Phone className="h-4 w-4" />
-                        <span>{location.contact_person_phone}</span>
+                        <span>{location.contactPhone}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Mail className="h-4 w-4" />
-                        <span>{location.contact_person_email}</span>
+                        <span>{location.contactEmail}</span>
                       </div>
                     </div>
                   </div>

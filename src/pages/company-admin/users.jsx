@@ -1,26 +1,36 @@
 import { useState } from "react";
-import {
-  getMockCurrentUser,
-  getUsersByCompany,
-  getLocationsByCompany,
-} from "@/lib/mock-data";
+import { getMockCurrentUser, getUsersByCompany } from "@/lib/mock-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Mail, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { OnboardUserDialog } from "@/components/company-admin/onboard-user-dialog";
+import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api";
 
 export default function CompanyAdminUsersPage() {
   const user = getMockCurrentUser();
   const [showOnboardDialog, setShowOnboardDialog] = useState(false);
-  const users = user?.company_id ? getUsersByCompany(user.company_id) : [];
-  const locations = user?.company_id
-    ? getLocationsByCompany(user.company_id)
-    : [];
+  const users = user?.companyId ? getUsersByCompany(user.companyId) : [];
+
+  const {
+    data: locations,
+    isLoading: isLoadingLocations,
+    error: locationsError,
+  } = useQuery({
+    queryKey: ["locations"],
+    queryFn: async () => {
+      const response = await apiClient.get("/locations");
+      return response.data;
+    },
+    enabled: !!user?.companyId, // Only fetch locations if company_id is available
+  });
 
   const getLocationName = (locationId) => {
     if (!locationId) return "All Locations";
-    const location = locations.find((l) => l.id === locationId);
+    if (isLoadingLocations) return "Loading...";
+    if (locationsError) return "Error";
+    const location = locations?.find((l) => l.id === locationId);
     return location?.name || "Unknown";
   };
 
@@ -87,6 +97,9 @@ export default function CompanyAdminUsersPage() {
       <OnboardUserDialog
         open={showOnboardDialog}
         onOpenChange={setShowOnboardDialog}
+        locations={locations}
+        isLoadingLocations={isLoadingLocations}
+        locationsError={locationsError}
       />
     </div>
   );
