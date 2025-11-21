@@ -1,10 +1,3 @@
-import {
-  getMockCurrentUser,
-  getLocationById,
-  getConfigurationsByLocation,
-  getSensorReadingsByLocation,
-  getAlarmsByLocation,
-} from "@/lib/mock-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -16,22 +9,59 @@ import {
   Network,
 } from "lucide-react";
 import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api";
 
 export default function CompanyAdminLocationDetailPage() {
-  const user = getMockCurrentUser();
   const { id } = useParams();
-  const location = getLocationById(id);
 
-  const configurations = getConfigurationsByLocation(id);
-  const sensorReadings = getSensorReadingsByLocation(id);
-  const alarms = getAlarmsByLocation(id);
-  const activeAlarms = alarms.filter((a) => a.status === "active");
+  const {
+    data: location,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["locationDetails", id],
+    queryFn: async () => {
+      const response = await apiClient.get(`/locations/${id}/details`);
+      return response.data;
+    },
+    enabled: !!id, // Only run the query if id is available
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <p>Loading location details...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-full items-center justify-center text-red-500">
+        <p>Error loading location details: {error.message}</p>
+      </div>
+    );
+  }
+
+  if (!location) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <p>Location not found.</p>
+      </div>
+    );
+  }
+
+  const activeAlarms = location.alarmSummary.activeAlarms;
+  const latestReading = location.alarmSummary.latestReading;
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">{location.name}</h1>
-        <p className="text-gray-600">{location.address}</p>
+        <p className="text-gray-600">
+          {`${location.address.street}, ${location.address.city}, ${location.address.province} ${location.address.postalCode}, ${location.address.country}`}
+        </p>
       </div>
 
       {activeAlarms.length > 0 && (
@@ -78,9 +108,9 @@ export default function CompanyAdminLocationDetailPage() {
               </h3>
               <div className="flex items-center gap-2 text-sm">
                 <Network className="h-4 w-4 text-gray-400" />
-                <span className="font-medium text-gray-900">Device IP:</span>
+                <span className="font-medium text-gray-900">Device ID:</span>
                 <span className="text-gray-600 font-mono">
-                  {location.device_ip}
+                  {location.deviceId}
                 </span>
               </div>
             </div>
@@ -93,19 +123,20 @@ export default function CompanyAdminLocationDetailPage() {
                 <div className="flex items-center gap-2 text-sm">
                   <span className="font-medium text-gray-900">Name:</span>
                   <span className="text-gray-600">
-                    {location.contact_person_name}
+                    {location.locationContact.firstName}{" "}
+                    {location.locationContact.lastName}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Phone className="h-4 w-4 text-gray-400" />
                   <span className="text-gray-600">
-                    {location.contact_person_phone}
+                    {location.contactInfo.phone}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Mail className="h-4 w-4 text-gray-400" />
                   <span className="text-gray-600">
-                    {location.contact_person_email}
+                    {location.contactInfo.email}
                   </span>
                 </div>
               </div>
@@ -123,18 +154,18 @@ export default function CompanyAdminLocationDetailPage() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {sensorReadings.map((reading) => {
-              const config = configurations.find(
-                (c) => c.parameter_name === reading.parameter_name
+            {Object.entries(latestReading).map(([param, value]) => {
+              if (param === "timestamp" || param === "condition") return null;
+              const config = location.configurations?.find(
+                (c) => c.parameter_name.toLowerCase() === param.toLowerCase()
               );
               const isOutOfRange = config
-                ? reading.value < config.min_value ||
-                  reading.value > config.max_value
+                ? value < config.min_value || value > config.max_value
                 : false;
 
               return (
                 <div
-                  key={reading.id}
+                  key={param}
                   className={`rounded-lg border p-4 ${
                     isOutOfRange
                       ? "border-red-200 bg-red-50"
@@ -148,7 +179,7 @@ export default function CompanyAdminLocationDetailPage() {
                       }`}
                     />
                     <span className="text-sm font-medium text-gray-900">
-                      {reading.parameter_name}
+                      {param.charAt(0).toUpperCase() + param.slice(1)}
                     </span>
                   </div>
                   <div className="mt-2">
@@ -157,10 +188,10 @@ export default function CompanyAdminLocationDetailPage() {
                         isOutOfRange ? "text-red-600" : "text-gray-900"
                       }`}
                     >
-                      {reading.value}
+                      {value}
                     </span>
                     <span className="ml-1 text-sm text-gray-600">
-                      {reading.unit}
+                      {config?.unit || ""}
                     </span>
                   </div>
                   {config && (

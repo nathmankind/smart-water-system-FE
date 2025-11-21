@@ -9,7 +9,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getMockCurrentUser, addLocation, addUser } from "@/lib/mock-data";
+import { getMockCurrentUser } from "@/lib/mock-data";
+import { useMutation } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api";
 
 export function OnboardLocationDialog({ open, onOpenChange }) {
   const user = getMockCurrentUser();
@@ -22,56 +24,53 @@ export function OnboardLocationDialog({ open, onOpenChange }) {
     postalCode: "",
     country: "",
     device_id: "",
-    contact_person_name: "",
+    contact_person_first_name: "",
+    contact_person_last_name: "",
     contact_person_email: "",
     contact_person_phone: "",
   });
 
+  const {
+    mutate: onboardLocation,
+    isPending,
+    error,
+  } = useMutation({
+    mutationFn: async (locationData) => {
+      console.log("mutattion about to start");
+      const response = await apiClient.post("/locations", locationData);
+      return response.data;
+    },
+    onSuccess: () => {
+      onOpenChange(false);
+      window.location.reload();
+    },
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log("button clicked", user);
+    if (!user?.companyId) return;
 
-    if (!user?.company_id) return;
-
-    const newLocation = addLocation({
-      company_id: user.company_id,
+    const locationData = {
       name: formData.name,
-      address: {
-        street: formData.street,
-        city: formData.city,
-        province: formData.province,
-        postalCode: formData.postalCode,
-        country: formData.country,
+      contactEmail: formData.contact_person_email,
+      contactPhone: formData.contact_person_phone,
+      deviceId: formData.device_id,
+      address: formData.street,
+      city: formData.city,
+      country: formData.country,
+      province: formData.province,
+      postalCode: formData.postalCode,
+      companyId: user.companyId,
+      locationContact: {
+        firstName: formData.contact_person_first_name,
+        lastName: formData.contact_person_last_name,
       },
-      device_id: formData.device_id,
-      contact_person_name: formData.contact_person_name,
-      contact_person_email: formData.contact_person_email,
-      contact_person_phone: formData.contact_person_phone,
-    });
+    };
 
-    // Add location contact user
-    addUser({
-      email: formData.contact_person_email,
-      role: "location_contact",
-      full_name: formData.contact_person_name,
-      company_id: user.company_id,
-      location_id: newLocation.id,
-    });
+    console.log("=========");
 
-    setFormData({
-      name: "",
-      street: "",
-      city: "",
-      province: "",
-      postalCode: "",
-      country: "",
-      device_id: "",
-      contact_person_name: "",
-      contact_person_email: "",
-      contact_person_phone: "",
-    });
-
-    onOpenChange(false);
-    window.location.reload();
+    onboardLocation(locationData);
   };
 
   return (
@@ -176,80 +175,106 @@ export function OnboardLocationDialog({ open, onOpenChange }) {
               />
             </div>
 
-            <div className="border-t pt-4">
+            <div className="border-t pt-4 space-y-4">
               <h3 className="mb-4 text-sm font-medium">
                 Contact Person (Will be created as user)
               </h3>
 
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="contact_person_name">Full Name *</Label>
+                  <Label htmlFor="contact_person_first_name">
+                    First Name *
+                  </Label>
                   <Input
-                    id="contact_person_name"
-                    value={formData.contact_person_name}
+                    id="contact_person_first_name"
+                    value={formData.contact_person_first_name}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        contact_person_name: e.target.value,
+                        contact_person_first_name: e.target.value,
                       })
                     }
-                    placeholder="John Doe"
+                    placeholder="John"
                     required
                   />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="contact_person_email">Email *</Label>
+                  <Label htmlFor="contact_person_last_name">Last Name *</Label>
                   <Input
-                    id="contact_person_email"
-                    type="email"
-                    value={formData.contact_person_email}
+                    id="contact_person_last_name"
+                    value={formData.contact_person_last_name}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        contact_person_email: e.target.value,
+                        contact_person_last_name: e.target.value,
                       })
                     }
-                    placeholder="john@example.com"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="contact_person_phone">Phone *</Label>
-                  <Input
-                    id="contact_person_phone"
-                    type="tel"
-                    value={formData.contact_person_phone}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        contact_person_phone: e.target.value,
-                      })
-                    }
-                    placeholder="+1-555-0100"
+                    placeholder="Doe"
                     required
                   />
                 </div>
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="contact_person_email">Email *</Label>
+                <Input
+                  id="contact_person_email"
+                  type="email"
+                  value={formData.contact_person_email}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      contact_person_email: e.target.value,
+                    })
+                  }
+                  placeholder="john@example.com"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="contact_person_phone">Phone *</Label>
+                <Input
+                  id="contact_person_phone"
+                  type="tel"
+                  value={formData.contact_person_phone}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      contact_person_phone: e.target.value,
+                    })
+                  }
+                  placeholder="+1-555-0100"
+                  required
+                />
+              </div>
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
-            >
-              Onboard Location
-            </Button>
+          <div className="flex flex-col gap-4">
+            {error && (
+              <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">
+                {error.message}
+              </div>
+            )}
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                className="flex-1"
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                disabled={isPending}
+              >
+                {isPending ? "Onboarding..." : "Onboard Location"}
+              </Button>
+            </div>
           </div>
         </form>
       </DialogContent>
