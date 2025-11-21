@@ -11,6 +11,9 @@ COPY package*.json ./
 
 RUN npm ci
 
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
 # Copy the rest of the code
 COPY . .
 RUN npm run build
