@@ -52,10 +52,10 @@ jobs:
 
       - name: Build Docker image
         # run: docker build -t nathmankind/capstone-react-app .
-      run: |
-        docker build \
-          --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
-          -t nathmankind/capstone-react-app .
+        run: |
+          docker build \
+            --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
+            -t nathmankind/capstone-react-app .
 
       - name: Publish to Docker hub
         run: docker push nathmankind/capstone-react-app:latest
