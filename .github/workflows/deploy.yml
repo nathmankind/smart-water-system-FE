@@ -1,9 +1,12 @@
 name: Build application and deploy
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
     branches:
-      - master # production branch
+      - master
 
 jobs:
   build:
