@@ -327,11 +327,7 @@ export default function CompanyAdminLocationDetailPage() {
               </div>
               <div className="mt-2">
                 <span
-                  className={`text-xl font-normal capitalize ${
-                    latestReading.turbidityStatus != "CLEAN"
-                      ? "text-gray-900"
-                      : "text-red-600"
-                  }`}
+                  className={`text-xl font-normal capitalize text-gray-900 `}
                 >
                   {latestReading.waterQuality.toLowerCase()}
                 </span>
@@ -404,8 +400,8 @@ export default function CompanyAdminLocationDetailPage() {
                 <span
                   className={`text-2xl font-bold ${
                     latestReading.turbidityStatus != "CLEAN"
-                      ? "text-gray-900"
-                      : "text-red-600"
+                      ? "text-red-900"
+                      : "text-gray-600"
                   }`}
                 >
                   {latestReading.turbidityNtu}
@@ -414,10 +410,10 @@ export default function CompanyAdminLocationDetailPage() {
               </div>
 
               <p
-                className={`mt-1 text-xs text-gray-500  p-1 rounded w-fit border border-gray-200 ${
+                className={`mt-1 text-xs text-gray-500  px-2 py-1 rounded w-fit border border-gray-200 ${
                   latestReading.turbidityStatus != "CLEAN"
                     ? "text-white bg-red-500"
-                    : ""
+                    : "text-white bg-green-500"
                 }`}
               >
                 {latestReading.turbidityStatus}
