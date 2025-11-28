@@ -20,7 +20,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  console.log("apiUrl ...", apiUrl);
+  console.log("apiUrl check on prod ...", apiUrl);
   const {
     mutate: handleLogin,
     isPending,
