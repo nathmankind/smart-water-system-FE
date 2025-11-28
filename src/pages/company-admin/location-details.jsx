@@ -13,109 +13,9 @@ import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 // import { getSensorReadingsByLocation } from "mockfile/mock-data";
 
-const mockSensorReadings = [
-  {
-    id: "reading-1",
-    location_id: "location-1",
-    parameter_name: "pH",
-    value: 9.2,
-    unit: "pH",
-    timestamp: new Date().toISOString(),
-  },
-  {
-    id: "reading-2",
-    location_id: "location-1",
-    parameter_name: "Turbidity",
-    value: 4.8,
-    unit: "NTU",
-    timestamp: new Date().toISOString(),
-  },
-  {
-    id: "reading-3",
-    location_id: "location-1",
-    parameter_name: "Chlorine",
-    value: 1.2,
-    unit: "mg/L",
-    timestamp: new Date().toISOString(),
-  },
-  {
-    id: "reading-4",
-    location_id: "location-1",
-    parameter_name: "Temperature",
-    value: 22.5,
-    unit: "°C",
-    timestamp: new Date().toISOString(),
-  },
-  {
-    id: "reading-5",
-    location_id: "location-2",
-    parameter_name: "pH",
-    value: 7.2,
-    unit: "pH",
-    timestamp: new Date().toISOString(),
-  },
-  {
-    id: "reading-6",
-    location_id: "location-3",
-    parameter_name: "Temperature",
-    value: 28.5,
-    unit: "°C",
-    timestamp: new Date().toISOString(),
-  },
-];
-
-const mockConfigurations = [
-  {
-    id: "config-1",
-    location_id: "location-1",
-    parameter_name: "pH",
-    min_value: 6.5,
-    max_value: 8.5,
-    unit: "pH",
-    created_at: "2024-01-20T11:00:00Z",
-  },
-  {
-    id: "config-2",
-    location_id: "location-1",
-    parameter_name: "Turbidity",
-    min_value: 0,
-    max_value: 5,
-    unit: "NTU",
-    created_at: "2024-01-20T11:00:00Z",
-  },
-  {
-    id: "config-3",
-    location_id: "location-1",
-    parameter_name: "Chlorine",
-    min_value: 0.2,
-    max_value: 4.0,
-    unit: "mg/L",
-    created_at: "2024-01-20T11:00:00Z",
-  },
-  {
-    id: "config-4",
-    location_id: "location-2",
-    parameter_name: "pH",
-    min_value: 6.5,
-    max_value: 8.5,
-    unit: "pH",
-    created_at: "2024-01-21T11:00:00Z",
-  },
-  {
-    id: "config-5",
-    location_id: "location-3",
-    parameter_name: "Temperature",
-    min_value: 10,
-    max_value: 30,
-    unit: "°C",
-    created_at: "2024-02-05T11:00:00Z",
-  },
-];
-
 export default function CompanyAdminLocationDetailPage() {
   const { id } = useParams();
 
-  const sensorReadings = mockSensorReadings;
   const {
     data: location,
     isLoading,
@@ -156,7 +56,17 @@ export default function CompanyAdminLocationDetailPage() {
   const activeAlarms = location.alarmSummary.activeAlarms;
   const latestReading = location.alarmSummary.latestReading;
 
-  console.log("latestReading", latestReading);
+  const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true, // Use 12-hour format (e.g., "PM")
+  };
+  const formatter = new Intl.DateTimeFormat("en-US", options); // 'en-US' for English (United States) locale
+  // const formattedDateTime = formatter.format(now);
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-6">
@@ -253,8 +163,9 @@ export default function CompanyAdminLocationDetailPage() {
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5" />
             Current Readings{" "}
-            <span className="font-medium text-sm bg-blue-400 px-2 py-1 rounded text-white">
-              Last Reading: {new Date(latestReading.createdAt).toDateString()}
+            <span className="font-medium text-sm bg-blue-200 px-2 py-1 rounded text-blue-600">
+              Last Reading:{" "}
+              {formatter.format(new Date(latestReading.createdAt))}
             </span>
           </CardTitle>
         </CardHeader>
