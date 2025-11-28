@@ -20,7 +20,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  console.log("apiUrl ...", apiUrl);
+  console.log("apiUrl check on prod ...", apiUrl);
   const {
     mutate: handleLogin,
     isPending,
@@ -105,7 +105,7 @@ export default function LoginPage() {
                 <div className="rounded-md bg-blue-50 p-3 text-sm text-blue-800">
                   <p className="font-medium mb-1">Demo Credentials:</p>
                   <p>Superadmin: nathmankind+01@gmail.com --- Admin123!</p>
-                  <p>Company Admin: jane.admin@acme.com --- password</p>
+                  <p>Company Admin: nathan@yopmail.com --- password</p>
                   <p>Location Contact: toronto@acme.com</p>
                 </div>
                 {error && (

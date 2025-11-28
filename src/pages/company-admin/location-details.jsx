@@ -11,6 +11,7 @@ import {
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
+// import { getSensorReadingsByLocation } from "mockfile/mock-data";
 
 export default function CompanyAdminLocationDetailPage() {
   const { id } = useParams();
@@ -54,6 +55,18 @@ export default function CompanyAdminLocationDetailPage() {
 
   const activeAlarms = location.alarmSummary.activeAlarms;
   const latestReading = location.alarmSummary.latestReading;
+
+  const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true, // Use 12-hour format (e.g., "PM")
+  };
+  const formatter = new Intl.DateTimeFormat("en-US", options); // 'en-US' for English (United States) locale
+  // const formattedDateTime = formatter.format(now);
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-6">
@@ -149,10 +162,14 @@ export default function CompanyAdminLocationDetailPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5" />
-            Current Readings
+            Current Readings{" "}
+            <span className="font-medium text-sm bg-blue-200 px-2 py-1 rounded text-blue-600">
+              Last Reading:{" "}
+              {formatter.format(new Date(latestReading.createdAt))}
+            </span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        {/* <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {Object.entries(latestReading).map(([param, value]) => {
               if (param === "timestamp" || param === "condition") return null;
@@ -167,7 +184,7 @@ export default function CompanyAdminLocationDetailPage() {
                 <div
                   key={param}
                   className={`rounded-lg border p-4 ${
-                    isOutOfRange
+                    param == "ph" && latestReading.phStatus == "INVALID"
                       ? "border-red-200 bg-red-50"
                       : "border-gray-200"
                   }`}
@@ -204,7 +221,174 @@ export default function CompanyAdminLocationDetailPage() {
               );
             })}
           </div>
+        </CardContent> */}
+
+        <hr />
+
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {/* water quality */}
+
+            <div className={`rounded-lg border p-4 border-gray-200 `}>
+              <div className="flex items-center gap-2">
+                <Droplet className={`h-4 w-4 text-blue-600 `} />
+                <span className="text-sm font-bold text-gray-900">
+                  Water Quality
+                </span>
+              </div>
+              <div className="mt-2">
+                <span
+                  className={`text-xl font-normal capitalize text-gray-900 `}
+                >
+                  {latestReading.waterQuality.toLowerCase()}
+                </span>
+              </div>
+            </div>
+            {/* ph */}
+            <div
+              className={`rounded-lg border p-4 ${
+                latestReading.phStatus == "INVALID"
+                  ? "border-red-200 bg-red-50"
+                  : "border-gray-200"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Droplet
+                  className={`h-4 w-4 ${
+                    latestReading.phStatus == "INVALID"
+                      ? "text-red-600"
+                      : "text-blue-600"
+                  }`}
+                />
+                <span className="text-sm font-medium text-gray-900">pH</span>
+              </div>
+              <div className="mt-2">
+                <span
+                  className={`text-2xl font-bold ${
+                    latestReading.phStatus == "INVALID"
+                      ? "text-red-600"
+                      : "text-gray-900"
+                  }`}
+                >
+                  {latestReading.ph}
+                </span>
+                <span className="ml-1 text-sm text-gray-600">pH</span>
+              </div>
+
+              <p
+                className={`mt-1 text-xs text-gray-500  p-1 rounded w-fit border border-gray-200 ${
+                  latestReading.phStatus == "INVALID"
+                    ? "text-white bg-red-500"
+                    : ""
+                }`}
+              >
+                {latestReading.phStatus}
+              </p>
+            </div>
+
+            {/* turbidity */}
+
+            <div
+              className={`rounded-lg border p-4 ${
+                latestReading.turbidityStatus != "CLEAN"
+                  ? "border-red-200 bg-red-50"
+                  : "border-gray-200"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Droplet
+                  className={`h-4 w-4 ${
+                    latestReading.turbidityStatus != "CLEAN"
+                      ? "text-red-600"
+                      : "text-blue-600"
+                  }`}
+                />
+                <span className="text-sm font-medium text-gray-900">
+                  Turbidity
+                </span>
+              </div>
+              <div className="mt-2">
+                <span
+                  className={`text-2xl font-bold ${
+                    latestReading.turbidityStatus != "CLEAN"
+                      ? "text-red-900"
+                      : "text-gray-600"
+                  }`}
+                >
+                  {latestReading.turbidityNtu}
+                </span>
+                <span className="ml-1 text-sm text-gray-600">NTU</span>
+              </div>
+
+              <p
+                className={`mt-1 text-xs text-gray-500  px-2 py-1 rounded w-fit border border-gray-200 ${
+                  latestReading.turbidityStatus != "CLEAN"
+                    ? "text-white bg-red-500"
+                    : "text-white bg-green-500"
+                }`}
+              >
+                {latestReading.turbidityStatus}
+              </p>
+            </div>
+
+            {/* temperature */}
+          </div>
         </CardContent>
+        {/* /// sample is here */}
+
+        {/* <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {sensorReadings.map((reading) => {
+              const config = mockConfigurations.find(
+                (c) => c.parameter_name === reading.parameter_name
+              );
+              const isOutOfRange = config
+                ? reading.value < config.min_value ||
+                  reading.value > config.max_value
+                : false;
+
+              return (
+                <div
+                  key={reading.id}
+                  className={`rounded-lg border p-4 ${
+                    isOutOfRange
+                      ? "border-red-200 bg-red-50"
+                      : "border-gray-200"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Droplet
+                      className={`h-4 w-4 ${
+                        isOutOfRange ? "text-red-600" : "text-blue-600"
+                      }`}
+                    />
+                    <span className="text-sm font-medium text-gray-900">
+                      {reading.parameter_name}
+                    </span>
+                  </div>
+                  <div className="mt-2">
+                    <span
+                      className={`text-2xl font-bold ${
+                        isOutOfRange ? "text-red-600" : "text-gray-900"
+                      }`}
+                    >
+                      {reading.value}
+                    </span>
+                    <span className="ml-1 text-sm text-gray-600">
+                      {reading.unit}
+                    </span>
+                  </div>
+                  {config && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      Range: {config.min_value} - {config.max_value}{" "}
+                      {config.unit}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </CardContent> */}
       </Card>
     </div>
   );
