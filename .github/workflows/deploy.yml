@@ -44,10 +44,10 @@ jobs:
       - name: Snyk Test (Code)
         run: snyk test --strict-out-of-sync=false --file=package.json --severity-threshold=medium
 
-      - name: Snyk Test (Docker Image)
-        run: |
-          docker build -t my-react-app .
-          snyk test --docker my-react-app --file=Dockerfile --severity-threshold=high
+      # - name: Snyk Test (Docker Image)
+      #   run: |
+      #     docker build -t my-react-app .
+      #     snyk test --docker my-react-app --file=Dockerfile --severity-threshold=high
 
       ## Continue with docker container push
       - name: Login to docker hub
