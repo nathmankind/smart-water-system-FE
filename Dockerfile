@@ -19,7 +19,7 @@ COPY . .
 RUN npm run build
 
 FROM nginx:alpine
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built Vite files from builder stage into Nginx
 COPY --from=builder /usr/src/app/dist /usr/share/nginx/html
