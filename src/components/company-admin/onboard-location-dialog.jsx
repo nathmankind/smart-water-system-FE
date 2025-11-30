@@ -15,6 +15,7 @@ import { apiClient } from "@/lib/api";
 
 export function OnboardLocationDialog({ open, onOpenChange }) {
   const user = getMockCurrentUser();
+  const [formError, setFormError] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -68,7 +69,12 @@ export function OnboardLocationDialog({ open, onOpenChange }) {
       },
     };
 
-    console.log("=========");
+    if (user.email === formData.contact_person_email) {
+      setFormError(
+        `Contact person email cannot be the same as your email - ${user.email}`
+      );
+      return;
+    }
 
     onboardLocation(locationData);
   };
@@ -252,9 +258,14 @@ export function OnboardLocationDialog({ open, onOpenChange }) {
           </div>
 
           <div className="flex flex-col gap-4">
+            {!!formError && (
+              <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">
+                {formError}
+              </div>
+            )}
             {error && (
               <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">
-                {error.message}
+                {error.response.data?.message}
               </div>
             )}
             <div className="flex gap-3">
